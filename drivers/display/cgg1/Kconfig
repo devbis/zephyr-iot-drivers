@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config IOTDRV_DISPLAY_CGG1
+	bool "CGG1-M e-paper display"
+	default y
+	depends on DT_HAS_IOTDRV_CGG1_EPD_ENABLED
+	select GPIO
+	help
+	  E-paper panel of the Qingping CGG1-M, original and 2022 hardware.
+	  Enabled by a "iotdrv,cgg1-epd" node in the devicetree.
+
+if IOTDRV_DISPLAY_CGG1
+
+config IOTDRV_DISPLAY_CGG1_INIT_PRIORITY
+	int "Init priority"
+	default 90
+	help
+	  Must be later than the GPIO drivers the panel is wired to.
+
+config IOTDRV_DISPLAY_CGG1_BUSY_TIMEOUT_MS
+	int "Busy timeout"
+	default 3000
+	range 100 60000
+	help
+	  Longest wait for the panel to leave the busy state, per refresh
+	  step. A full refresh keeps it busy for about 1.2 s.
+
+endif # IOTDRV_DISPLAY_CGG1

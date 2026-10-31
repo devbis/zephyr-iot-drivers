@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  E-paper display of the Xiaomi MHO-C401, both hardware variants. The panel is
+  driven over a bit-banged 9-bit serial link (a command/data bit, then 8 data
+  bits, MSB first, clocked on the rising edge of the clock), so every line is a
+  plain GPIO. The two variants use different controllers and segment maps and
+  cannot be told apart at runtime: select one with `variant`.
+
+  Pin usage of the vendor firmware, for reference:
+
+    line          mho-c401   mho-c401n
+    cs            PD2        PA6
+    clk           PD7        PC4
+    mosi          PB7        PD2
+    reset         PA6        PD7
+    busy          PA5        PA5
+    enable        PC4        PB7
+
+  Chip select and reset are active low, busy is low while the panel refreshes:
+  give the GPIO_ACTIVE_LOW flag for those three, and GPIO_PULL_UP on busy.
+
+  Example:
+
+    lcd {
+        compatible = "iotdrv,mho-c401-epd";
+        variant = "mho-c401";
+        cs-gpios = <&gpiod 2 GPIO_ACTIVE_LOW>;
+        clk-gpios = <&gpiod 7 GPIO_ACTIVE_HIGH>;
+        mosi-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
+        reset-gpios = <&gpioa 6 GPIO_ACTIVE_LOW>;
+        busy-gpios = <&gpioa 5 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+        enable-gpios = <&gpioc 4 GPIO_ACTIVE_HIGH>;
+    };
+
+compatible: "iotdrv,mho-c401-epd"
+
+include: base.yaml
+
+properties:
+  variant:
+    type: string
+    required: true
+    enum:
+      - "mho-c401"
+      - "mho-c401n"
+    description: |
+      "mho-c401" is the 2020 panel, "mho-c401n" the 2022 one (device type
+      0x0008 in the ATC firmware).
+
+  cs-gpios:
+    type: phandle-array
+    required: true
+    description: Serial link chip select, active low
+
+  clk-gpios:
+    type: phandle-array
+    required: true
+    description: Serial link clock
+
+  mosi-gpios:
+    type: phandle-array
+    required: true
+    description: Serial link data line (EPD_SDA)
+
+  reset-gpios:
+    type: phandle-array
+    required: true
+    description: Controller reset, active low
+
+  busy-gpios:
+    type: phandle-array
+    required: true
+    description: |
+      Busy input, asserted (logical 1) while the controller refreshes the
+      panel. Give GPIO_ACTIVE_LOW.
+
+  enable-gpios:
+    type: phandle-array
+    description: |
+      Line the vendor firmware only leaves pulled high (EPD_SHD on the
+      mho-c401, EPD_RST2 on the mho-c401n). Driven to its active level at init
+      when present.

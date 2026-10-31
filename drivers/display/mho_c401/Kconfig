@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config IOTDRV_DISPLAY_MHO_C401
+	bool "MHO-C401 e-paper display"
+	default y
+	depends on DT_HAS_IOTDRV_MHO_C401_EPD_ENABLED
+	select GPIO
+	help
+	  E-paper panel of the Xiaomi MHO-C401, both hardware variants.
+	  Enabled by a "iotdrv,mho-c401-epd" node in the devicetree.
+
+if IOTDRV_DISPLAY_MHO_C401
+
+config IOTDRV_DISPLAY_MHO_C401_INIT_PRIORITY
+	int "Init priority"
+	default 90
+	help
+	  Must be later than the GPIO drivers the panel lines sit on.
+
+endif # IOTDRV_DISPLAY_MHO_C401

@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  Segment LCD of the Qingping CGDK2, driven by a ROHM BU9792AFUV controller
+  at I2C address 0x3E (CGDK2_I2C_ADDR in ATC_MiThermometer). The driver
+  probes that address at boot and fails with -ENODEV when nothing answers.
+
+  Example:
+
+    lcd {
+        compatible = "iotdrv,cgdk2-lcd";
+        i2c = <&i2c0>;
+    };
+
+compatible: "iotdrv,cgdk2-lcd"
+
+include: base.yaml
+
+properties:
+  i2c:
+    type: phandle
+    required: true
+    description: I2C bus the controller (address 0x3E) sits on

@@ -1,0 +1,10 @@
+&i2c0 {
+	status = "okay";
+};
+
+/ {
+	lcd: lcd {
+		compatible = "iotdrv,cgdk2-lcd";
+		i2c = <&i2c0>;
+	};
+};

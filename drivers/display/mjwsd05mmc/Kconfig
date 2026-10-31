@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config IOTDRV_DISPLAY_MJWSD05MMC
+	bool "MJWSD05MMC segment display"
+	default y
+	depends on DT_HAS_IOTDRV_MJWSD05MMC_LCD_ENABLED
+	select I2C
+	help
+	  Segment LCD of the Xiaomi MJWSD05MMC (ROHM BU9792AFUV controller).
+	  Enabled by a "iotdrv,mjwsd05mmc-lcd" node in the devicetree.
+
+if IOTDRV_DISPLAY_MJWSD05MMC
+
+config IOTDRV_DISPLAY_MJWSD05MMC_INIT_PRIORITY
+	int "Init priority"
+	default 90
+	help
+	  Must be later than the I2C driver the panel sits on.
+
+endif # IOTDRV_DISPLAY_MJWSD05MMC

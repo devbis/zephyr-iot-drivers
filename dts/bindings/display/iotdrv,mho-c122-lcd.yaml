@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  Segment LCD of the Xiaomi MHO-C122. Its controller sits at I2C address
+  0x3C (B14_I2C_ADDR in ATC_MiThermometer) and uses the same init sequence
+  and data stream as the LYWSD03MMC revision B1.4. The driver probes that
+  address at boot and fails with -ENODEV when nothing answers.
+
+  Example:
+
+    lcd {
+        compatible = "iotdrv,mho-c122-lcd";
+        i2c = <&i2c0>;
+    };
+
+compatible: "iotdrv,mho-c122-lcd"
+
+include: base.yaml
+
+properties:
+  i2c:
+    type: phandle
+    required: true
+    description: I2C bus the controller (address 0x3C) sits on

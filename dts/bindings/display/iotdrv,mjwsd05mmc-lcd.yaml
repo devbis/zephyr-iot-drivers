@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  Segment LCD of the Xiaomi MJWSD05MMC, driven by a ROHM BU9792AFUV
+  controller at 7-bit I2C address 0x3E (the address is fixed in the driver).
+  The controller is probed at boot and the driver fails with -ENODEV when it
+  does not answer. The panel has no other lines the driver controls.
+
+  The panel has four digit groups, a clock, weekday and date fields and
+  battery, BLE and smiley symbols. The driver uses the big temperature
+  group, the small group at the lower right (for humidity), the clock group,
+  the unit, BLE, battery and smiley symbols; the weekday, date and AM/PM
+  elements are left blank.
+
+  Example:
+
+    lcd {
+        compatible = "iotdrv,mjwsd05mmc-lcd";
+        i2c = <&i2c0>;
+    };
+
+compatible: "iotdrv,mjwsd05mmc-lcd"
+
+include: base.yaml
+
+properties:
+  i2c:
+    type: phandle
+    required: true
+    description: I2C bus the BU9792AFUV controller (address 0x3E) sits on

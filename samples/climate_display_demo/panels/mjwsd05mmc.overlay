@@ -1,0 +1,12 @@
+/* The panel hangs on i2c0; the board's own pins stand in for the panel ones. */
+
+&i2c0 {
+	status = "okay";
+};
+
+/ {
+	lcd: lcd {
+		compatible = "iotdrv,mjwsd05mmc-lcd";
+		i2c = <&i2c0>;
+	};
+};

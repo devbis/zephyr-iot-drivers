@@ -1,0 +1,20 @@
+/* The pins are placeholders on free tlsr8258_tb03f GPIOs so that the demo builds; use the
+ * panel's real ones on the CGG1 board. Use variant = "cgg1-2022" for the 2022 hardware.
+ */
+
+&gpioa {
+	status = "okay";
+};
+
+/ {
+	lcd: lcd {
+		compatible = "iotdrv,cgg1-epd";
+		variant = "cgg1";
+		cs-gpios = <&gpioa 2 GPIO_ACTIVE_LOW>;
+		clk-gpios = <&gpioa 3 GPIO_ACTIVE_HIGH>;
+		mosi-gpios = <&gpioa 4 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpioa 0 GPIO_ACTIVE_LOW>;
+		busy-gpios = <&gpioa 5 GPIO_ACTIVE_LOW>;
+		enable-gpios = <&gpioa 1 GPIO_ACTIVE_HIGH>;
+	};
+};

@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  E-paper panel of the Qingping CGG1-M thermometer, driven over a bit-banged
+  9-bit serial link: a command/data bit followed by eight data bits, MSB
+  first, clocked by `clk-gpios` while `cs-gpios` is asserted.
+
+  Two hardware generations exist: the original (2020, 2021) and the 2022
+  one. They differ in the segment map, the frame size and the controller
+  command sequence, and cannot be told apart at run time, so `variant`
+  selects one.
+
+  The ATC firmware idles the lines as follows, which the flags below express:
+  chip select high, clock low, reset high and busy high when the panel is
+  ready. Example (the original CGG1-M, pins as in the ATC firmware):
+
+    lcd {
+        compatible = "iotdrv,cgg1-epd";
+        variant = "cgg1";
+        cs-gpios = <&gpiod 2 GPIO_ACTIVE_LOW>;
+        clk-gpios = <&gpiod 7 GPIO_ACTIVE_HIGH>;
+        mosi-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
+        reset-gpios = <&gpioa 0 GPIO_ACTIVE_LOW>;
+        busy-gpios = <&gpiod 4 GPIO_ACTIVE_LOW>;
+        enable-gpios = <&gpioa 1 GPIO_ACTIVE_HIGH>;
+    };
+
+compatible: "iotdrv,cgg1-epd"
+
+include: base.yaml
+
+properties:
+  variant:
+    type: string
+    required: true
+    enum:
+      - "cgg1"
+      - "cgg1-2022"
+    description: |
+      Hardware generation: "cgg1" for the 2020 and 2021 boards, "cgg1-2022"
+      for the 2022 one (ATC DEVICE_CGG1_ver = 2022, epd_cgg1n.c).
+
+  cs-gpios:
+    type: phandle-array
+    required: true
+    description: Chip select (EPD_CSB), asserted low.
+
+  clk-gpios:
+    type: phandle-array
+    required: true
+    description: Serial clock (EPD_SCL), idles low, data is sampled on the rising edge.
+
+  mosi-gpios:
+    type: phandle-array
+    required: true
+    description: Serial data out (EPD_SDA).
+
+  reset-gpios:
+    type: phandle-array
+    required: true
+    description: Controller reset (EPD_RST), asserted low.
+
+  busy-gpios:
+    type: phandle-array
+    required: true
+    description: Busy input (EPD_BUSY), asserted (busy) low.
+
+  enable-gpios:
+    type: phandle-array
+    description: |
+      Optional power enable (EPD_SHD). The ATC firmware leaves it as a pulled-up
+      input; the driver drives it active when given.

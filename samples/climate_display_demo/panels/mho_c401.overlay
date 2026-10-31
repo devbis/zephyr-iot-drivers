@@ -1,0 +1,21 @@
+/*
+ * MHO-C401 e-paper panel. The pins are placeholders: free GPIOs of the
+ * tlsr8258_tb03f board, chosen only so that the sample builds. On a real
+ * MHO-C401 use the pins listed in iotdrv,mho-c401-epd.yaml.
+ * Use variant = "mho-c401n" for the 2022 panel.
+ */
+
+#include <zephyr/dt-bindings/gpio/gpio.h>
+
+/ {
+	lcd: lcd {
+		compatible = "iotdrv,mho-c401-epd";
+		variant = "mho-c401";
+		cs-gpios = <&gpioa 0 GPIO_ACTIVE_LOW>;
+		clk-gpios = <&gpioa 1 GPIO_ACTIVE_HIGH>;
+		mosi-gpios = <&gpioa 2 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpioa 3 GPIO_ACTIVE_LOW>;
+		busy-gpios = <&gpioa 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+		enable-gpios = <&gpioa 5 GPIO_ACTIVE_HIGH>;
+	};
+};
