@@ -10,10 +10,12 @@ bridges that expose them over Zigbee or BLE.
     drivers/display/            thermometer panels behind one API (iot_drivers/climate_display.h):
       lywsd03mmc/ cgdk2/ mho_c122/ mjwsd05mmc/   segment LCDs
       cgg1/ mho_c401/                            e-paper (variant chosen in devicetree)
-    drivers/sensor/             temperature sensors (Zephyr sensor API)
+    drivers/sensor/             energy meters on the Zephyr sensor API (iot_drivers/energy_meter.h):
+      bl0942/                                  over UART
+      bl0937/                                  CF/CF1 pulse counting
     bridge/zigbee/              libraries -> ZCL clusters
     bridge/ble/                 libraries -> GATT services
-    dts/bindings/               devicetree bindings (vendor prefix `iotdrv`)
+    dts/bindings/               devicetree bindings (vendor prefixes `iotdrv`, `belling`, `tuya`)
     samples/
 
 Each part has its own `CONFIG_IOTDRV_*` option. Libraries and drivers must not

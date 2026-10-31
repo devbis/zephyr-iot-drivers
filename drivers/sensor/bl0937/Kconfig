@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config IOTDRV_SENSOR_BL0937
+	bool "BL0937 energy metering IC (CF/CF1 pulses)"
+	default y
+	depends on DT_HAS_BELLING_BL0937_ENABLED
+	select GPIO
+	select SENSOR
+	help
+	  Voltage, current, active power and accumulated energy from a BL0937,
+	  measured by counting its CF and CF1 pulses on GPIO interrupts. Enabled
+	  by a "belling,bl0937" node in the devicetree.
+
+if IOTDRV_SENSOR_BL0937
+
+config IOTDRV_SENSOR_BL0937_WINDOW_MS
+	int "Measurement window"
+	default 1000
+	range 200 10000
+	help
+	  Pulses are counted over this time. CF1 alternates between current and
+	  voltage every second window, so each of them is refreshed every four
+	  windows. Longer windows give better resolution at low power.
+
+endif # IOTDRV_SENSOR_BL0937

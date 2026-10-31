@@ -1,0 +1,64 @@
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  BL0937 single-phase energy metering IC read by counting pulses: CF is
+  proportional to active power, CF1 to current or voltage depending on the
+  SEL pin. The driver counts both on GPIO interrupts and flips SEL.
+
+  The defaults are the TS011F reference board values.
+
+    meter {
+        compatible = "belling,bl0937";
+        cf-gpios = <&gpiod 4 GPIO_ACTIVE_HIGH>;
+        cf1-gpios = <&gpiod 5 GPIO_ACTIVE_HIGH>;
+        sel-gpios = <&gpiod 6 GPIO_ACTIVE_HIGH>;
+        sel-high-is-voltage;
+    };
+
+compatible: "belling,bl0937"
+
+include: sensor-device.yaml
+
+properties:
+  cf-gpios:
+    type: phandle-array
+    required: true
+    description: CF pulse output, counted on its active edge.
+
+  cf1-gpios:
+    type: phandle-array
+    required: true
+    description: CF1 pulse output, counted on its active edge.
+
+  sel-gpios:
+    type: phandle-array
+    required: true
+    description: |
+      SEL input of the chip. Which level selects voltage is given by
+      `sel-high-is-voltage`.
+
+  sel-high-is-voltage:
+    type: boolean
+    description: |
+      SEL high makes CF1 carry voltage. Leave unset on boards where SEL high
+      selects current.
+
+  shunt-micro-ohms:
+    type: int
+    default: 1000
+    description: Current shunt resistance in micro-ohms.
+
+  voltage-divider-milli:
+    type: int
+    default: 2351000
+    description: Voltage divider ratio (mains to chip pin) times 1000.
+
+  cf-pulses-per-kwh:
+    type: int
+    default: 3200
+    description: CF pulses per kilowatt-hour, used for the energy total.
+
+  current-noise-floor-milliamps:
+    type: int
+    default: 0
+    description: Current at or below this is reported as zero.

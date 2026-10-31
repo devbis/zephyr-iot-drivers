@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  BL0942 single-phase energy metering IC on a UART (4800 baud by default,
+  8N1). The node is a child of the UART node; the baud rate is that node's
+  `current-speed`.
+
+  The calibration defaults are the reference values of the Tuya TS011F plug
+  (ESPHome bl0942 component), for a 1 mOhm shunt and a 5 x 390 kOhm / 510 Ohm
+  voltage divider. Other boards need their own values.
+
+    &uart0 {
+        current-speed = <4800>;
+        meter: bl0942 {
+            compatible = "belling,bl0942";
+        };
+    };
+
+compatible: "belling,bl0942"
+
+include: [sensor-device.yaml, uart-device.yaml]
+
+properties:
+  address:
+    type: int
+    default: 0
+    description: Device address set by the A1/A0 pins, 0..3.
+
+  voltage-counts-per-volt:
+    type: int
+    default: 15873
+    description: V_RMS counts per volt.
+
+  current-counts-per-amp:
+    type: int
+    default: 251213
+    description: I_RMS counts per ampere.
+
+  power-counts-per-watt:
+    type: int
+    default: 596
+    description: WATT counts per watt.
+
+  energy-counts-per-kwh:
+    type: int
+    default: 3305
+    description: CF_CNT counts per kilowatt-hour.

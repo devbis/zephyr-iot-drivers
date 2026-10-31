@@ -1,0 +1,4 @@
+tests:
+  iot_drivers.energy_meter:
+    platform_allow: unit_testing
+    tags: iot_drivers

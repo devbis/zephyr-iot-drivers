@@ -2,7 +2,7 @@
 
 description: Tuya-style host MCU on a UART
 
-compatible: "iotdrv,tuya-mcu"
+compatible: "tuya,mcu"
 
 include: base.yaml
 

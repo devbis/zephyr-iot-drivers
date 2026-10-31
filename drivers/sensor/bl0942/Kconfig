@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config IOTDRV_SENSOR_BL0942
+	bool "BL0942 energy metering IC (UART)"
+	default y
+	depends on DT_HAS_BELLING_BL0942_ENABLED
+	select SERIAL
+	select SENSOR
+	help
+	  Voltage, current, active power, mains frequency and accumulated
+	  energy from a BL0942 on a UART. Enabled by a "belling,bl0942" node
+	  under the UART node.
+
+if IOTDRV_SENSOR_BL0942
+
+config IOTDRV_SENSOR_BL0942_RX_TIMEOUT_MS
+	int "Response timeout"
+	default 150
+	range 30 2000
+	help
+	  Longest wait for the 23-byte answer in sensor_sample_fetch(). It
+	  takes about 50 ms at the chip's default 4800 baud.
+
+endif # IOTDRV_SENSOR_BL0942

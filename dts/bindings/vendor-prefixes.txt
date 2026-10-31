@@ -1,1 +1,3 @@
 iotdrv	zephyr-iot-drivers: panels and helpers of this module
+belling	Shanghai Belling Co., Ltd.
+tuya	Tuya Inc.
