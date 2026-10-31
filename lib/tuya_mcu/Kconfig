@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config IOTDRV_TUYA_MCU
+	bool "Tuya MCU serial protocol"
+	depends on SERIAL
+	help
+	  UART protocol spoken to a Tuya-style host MCU: heartbeat, product
+	  info and datapoint reports. Radio-independent.

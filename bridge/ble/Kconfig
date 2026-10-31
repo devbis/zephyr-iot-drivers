@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config IOTDRV_BRIDGE_BLE
+	bool "BLE bridge"
+	depends on BT
+	help
+	  Expose the IoT drivers library state over GATT, such as the
+	  Environmental Sensing service.

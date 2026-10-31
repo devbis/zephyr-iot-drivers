@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config IOTDRV_THERMOSTAT_CORE
+	bool "Radio-independent thermostat logic"
+	help
+	  Setpoint, hysteresis and heating demand. The Zigbee and BLE bridges
+	  expose this state; it has no dependency on either radio.

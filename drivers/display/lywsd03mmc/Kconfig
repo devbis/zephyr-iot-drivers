@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config IOTDRV_DISPLAY_LYWSD03MMC
+	bool "LYWSD03MMC segment display"
+	depends on GPIO
+	help
+	  Segment LCD of the Xiaomi LYWSD03MMC. Variants of the panel are
+	  selected by the devicetree compatible.

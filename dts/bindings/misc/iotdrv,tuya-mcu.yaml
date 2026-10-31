@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+
+description: Tuya-style host MCU on a UART
+
+compatible: "iotdrv,tuya-mcu"
+
+include: base.yaml
+
+properties:
+  uart:
+    type: phandle
+    required: true
+    description: UART connected to the MCU

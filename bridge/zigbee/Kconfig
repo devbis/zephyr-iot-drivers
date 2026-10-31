@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config IOTDRV_BRIDGE_ZIGBEE
+	bool "Zigbee bridge"
+	depends on ZIGBEE
+	help
+	  Expose the IoT drivers library state as ZCL clusters, such as
+	  Thermostat and Temperature Measurement.
