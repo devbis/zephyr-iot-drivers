@@ -2,10 +2,20 @@
 
 config IOTDRV_DISPLAY_LYWSD03MMC
 	bool "LYWSD03MMC segment display"
-	depends on I2C
-	select IOTDRV_DISPLAY_BU9792
-	select IOTDRV_DISPLAY_LCD_B14
+	default y
+	depends on DT_HAS_IOTDRV_LYWSD03MMC_LCD_ENABLED
+	select I2C
+	select SERIAL
 	help
-	  Segment LCD of the Xiaomi LYWSD03MMC: layout of the six segment
-	  bytes and the transfer to the controller of the board revision.
-	  The UART-driven B1.6 revision is not supported.
+	  Segment LCD of the Xiaomi LYWSD03MMC, all board revisions. Enabled
+	  by a "iotdrv,lywsd03mmc-lcd" node in the devicetree.
+
+if IOTDRV_DISPLAY_LYWSD03MMC
+
+config IOTDRV_DISPLAY_LYWSD03MMC_INIT_PRIORITY
+	int "Init priority"
+	default 90
+	help
+	  Must be later than the I2C and UART drivers the panel sits on.
+
+endif # IOTDRV_DISPLAY_LYWSD03MMC

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <iot_drivers/lywsd03mmc.h>
+#include <iot_drivers/lywsd03mmc_layout.h>
 
 #define SYM_H    0x67U
 #define SYM_I    0x40U
@@ -16,7 +16,7 @@
 /* 0..9 */
 static const uint8_t digits[] = {0xF5, 0x05, 0xD3, 0x97, 0x27, 0xB6, 0xF6, 0x15, 0xF7, 0xB7};
 
-void iotdrv_lywsd03mmc_big_number_x10(struct iotdrv_lywsd03mmc_frame *f, int16_t value)
+void iotdrv_lywsd03mmc_layout_big_number_x10(struct iotdrv_lywsd03mmc_frame *f, int16_t value)
 {
 	int32_t n = value;
 
@@ -66,7 +66,7 @@ void iotdrv_lywsd03mmc_big_number_x10(struct iotdrv_lywsd03mmc_frame *f, int16_t
 	f->b[3] = digits[n % 10];
 }
 
-void iotdrv_lywsd03mmc_small_number(struct iotdrv_lywsd03mmc_frame *f, int16_t value, bool percent)
+void iotdrv_lywsd03mmc_layout_small_number(struct iotdrv_lywsd03mmc_frame *f, int16_t value, bool percent)
 {
 	uint8_t battery = f->b[1] & SYM_BAT;
 
@@ -91,27 +91,27 @@ void iotdrv_lywsd03mmc_small_number(struct iotdrv_lywsd03mmc_frame *f, int16_t v
 	}
 }
 
-void iotdrv_lywsd03mmc_unit(struct iotdrv_lywsd03mmc_frame *f, enum iotdrv_lywsd03mmc_unit unit)
+void iotdrv_lywsd03mmc_layout_unit(struct iotdrv_lywsd03mmc_frame *f, enum iotdrv_lywsd03mmc_unit unit)
 {
 	f->b[2] = (f->b[2] & ~0xE0U) | ((uint8_t)unit & 0xE0U);
 }
 
-void iotdrv_lywsd03mmc_smiley(struct iotdrv_lywsd03mmc_frame *f, enum iotdrv_lywsd03mmc_smiley smiley)
+void iotdrv_lywsd03mmc_layout_smiley(struct iotdrv_lywsd03mmc_frame *f, enum iotdrv_lywsd03mmc_smiley smiley)
 {
 	f->b[2] = (f->b[2] & ~0x07U) | ((uint8_t)smiley & 0x07U);
 }
 
-void iotdrv_lywsd03mmc_ble(struct iotdrv_lywsd03mmc_frame *f, bool on)
+void iotdrv_lywsd03mmc_layout_ble(struct iotdrv_lywsd03mmc_frame *f, bool on)
 {
 	f->b[2] = on ? (f->b[2] | SYM_BLE) : (f->b[2] & ~SYM_BLE);
 }
 
-void iotdrv_lywsd03mmc_battery(struct iotdrv_lywsd03mmc_frame *f, bool on)
+void iotdrv_lywsd03mmc_layout_battery(struct iotdrv_lywsd03mmc_frame *f, bool on)
 {
 	f->b[1] = on ? (f->b[1] | SYM_BAT) : (f->b[1] & ~SYM_BAT);
 }
 
-void iotdrv_lywsd03mmc_clock(struct iotdrv_lywsd03mmc_frame *f, uint8_t hours, uint8_t minutes)
+void iotdrv_lywsd03mmc_layout_clock(struct iotdrv_lywsd03mmc_frame *f, uint8_t hours, uint8_t minutes)
 {
 	f->b[0] = digits[minutes % 10];
 	f->b[1] = digits[(minutes / 10) % 10];

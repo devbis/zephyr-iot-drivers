@@ -1,5 +1,0 @@
-# SPDX-License-Identifier: Apache-2.0
-
-config IOTDRV_DISPLAY_BU9792
-	bool "BU9792AFUV segment LCD controller"
-	depends on I2C

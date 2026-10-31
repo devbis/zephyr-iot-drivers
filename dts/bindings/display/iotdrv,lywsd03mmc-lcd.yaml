@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  Segment LCD of the Xiaomi LYWSD03MMC. The board revision is detected at
+  boot: the I2C controllers (B1.4, B1.7, B2.0 and B1.9) are probed on the
+  `i2c` bus, and the UART panel (B1.6) is used when no I2C controller answers
+  and `uart` is given. Give both when the revision is not known in advance.
+
+  The UART panel is driven at 38400 baud, 8N1, transmit only: set
+  `current-speed = <38400>` on that UART node and route its TX pin to the panel.
+
+  Example:
+
+    lcd {
+        compatible = "iotdrv,lywsd03mmc-lcd";
+        i2c = <&i2c0>;
+    };
+
+compatible: "iotdrv,lywsd03mmc-lcd"
+
+include: base.yaml
+
+properties:
+  i2c:
+    type: phandle
+    description: I2C bus of the I2C panel revisions
+
+  uart:
+    type: phandle
+    description: UART of the B1.6 panel revision

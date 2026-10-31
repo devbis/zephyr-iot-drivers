@@ -3,3 +3,10 @@
 &i2c0 {
 	status = "okay";
 };
+
+/ {
+	lcd: lcd {
+		compatible = "iotdrv,lywsd03mmc-lcd";
+		i2c = <&i2c0>;
+	};
+};
