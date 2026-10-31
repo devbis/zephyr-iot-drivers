@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config IOTDRV_DISPLAY_LCD_B14
+	bool "LYWSD03MMC B1.4 segment LCD controller"
+	depends on I2C

@@ -2,7 +2,10 @@
 
 config IOTDRV_DISPLAY_LYWSD03MMC
 	bool "LYWSD03MMC segment display"
-	depends on GPIO
+	depends on I2C
+	select IOTDRV_DISPLAY_BU9792
+	select IOTDRV_DISPLAY_LCD_B14
 	help
-	  Segment LCD of the Xiaomi LYWSD03MMC. Variants of the panel are
-	  selected by the devicetree compatible.
+	  Segment LCD of the Xiaomi LYWSD03MMC: layout of the six segment
+	  bytes and the transfer to the controller of the board revision.
+	  The UART-driven B1.6 revision is not supported.
