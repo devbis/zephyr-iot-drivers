@@ -2,7 +2,45 @@
 
 config IOTDRV_TUYA_MCU
 	bool "Tuya MCU serial protocol"
-	depends on SERIAL
 	help
-	  UART protocol spoken to a Tuya-style host MCU: heartbeat, product
-	  info and datapoint reports. Radio-independent.
+	  Protocol codec and session engine for a Tuya-style host MCU:
+	  product info handshake, datapoint reports and commands, network
+	  status and time sync. Independent of the transport and of the
+	  devices behind it.
+
+if IOTDRV_TUYA_MCU
+
+config IOTDRV_TUYA_MCU_RX_BUF_SIZE
+	int "Receive buffer size"
+	default 256
+	range 32 2048
+
+config IOTDRV_TUYA_MCU_TX_QUEUE_LEN
+	int "Number of queued outgoing frames"
+	default 8
+	range 1 64
+
+config IOTDRV_TUYA_MCU_ACK_TIMEOUT_MS
+	int "Time to wait for an acknowledge before resending"
+	default 1000
+
+config IOTDRV_TUYA_MCU_MAX_RETRIES
+	int "Resends before an unacknowledged frame is dropped"
+	default 5
+
+config IOTDRV_TUYA_MCU_TX_GAP_MS
+	int "Minimum gap between outgoing frames"
+	default 50
+
+config IOTDRV_TUYA_MCU_LINK_TIMEOUT_S
+	int "Silence from the MCU after which the link is reported lost"
+	default 90
+
+config IOTDRV_TUYA_UART
+	bool "Tuya MCU over UART"
+	depends on SERIAL
+	select UART_INTERRUPT_DRIVEN
+	help
+	  Binds a UART device to a Tuya MCU session.
+
+endif # IOTDRV_TUYA_MCU
