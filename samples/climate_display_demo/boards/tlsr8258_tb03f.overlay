@@ -1,4 +1,4 @@
-/* The panel hangs on i2c0; the board's own pins stand in for the LYWSD03MMC ones. */
+/* The panel hangs on i2c0; the board's own pins stand in for the panel ones. */
 
 &i2c0 {
 	status = "okay";

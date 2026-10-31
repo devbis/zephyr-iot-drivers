@@ -12,7 +12,8 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-#include <iot_drivers/lywsd03mmc.h>
+#include <iot_drivers/climate_display.h>
+#include <iot_drivers/lywsd03mmc_layout.h>
 
 LOG_MODULE_REGISTER(lywsd03mmc, CONFIG_LOG_DEFAULT_LEVEL);
 
@@ -159,7 +160,7 @@ static int transfer(const struct device *dev)
 	}
 }
 
-int iotdrv_lywsd03mmc_flush(const struct device *dev)
+static int lcd_flush(const struct device *dev)
 {
 	struct lcd_data *d = dev->data;
 	int err;
@@ -177,7 +178,7 @@ int iotdrv_lywsd03mmc_flush(const struct device *dev)
 	return err;
 }
 
-int iotdrv_lywsd03mmc_off(const struct device *dev)
+static int lcd_off(const struct device *dev)
 {
 	const struct lcd_config *cfg = dev->config;
 	struct lcd_data *d = dev->data;
@@ -194,61 +195,80 @@ int iotdrv_lywsd03mmc_off(const struct device *dev)
 	return err;
 }
 
-void iotdrv_lywsd03mmc_clear(const struct device *dev)
+static void lcd_clear(const struct device *dev)
 {
 	struct lcd_data *d = dev->data;
 
 	memset(&d->frame, 0, sizeof(d->frame));
 }
 
-void iotdrv_lywsd03mmc_big_number_x10(const struct device *dev, int16_t value)
+static void lcd_big_number_x10(const struct device *dev, int16_t value)
 {
 	struct lcd_data *d = dev->data;
 
 	iotdrv_lywsd03mmc_layout_big_number_x10(&d->frame, value);
 }
 
-void iotdrv_lywsd03mmc_small_number(const struct device *dev, int16_t value, bool percent)
+static void lcd_small_number(const struct device *dev, int16_t value, bool percent)
 {
 	struct lcd_data *d = dev->data;
 
 	iotdrv_lywsd03mmc_layout_small_number(&d->frame, value, percent);
 }
 
-void iotdrv_lywsd03mmc_unit(const struct device *dev, enum iotdrv_lywsd03mmc_unit unit)
+static void lcd_unit(const struct device *dev, enum iotdrv_climate_unit unit)
 {
 	struct lcd_data *d = dev->data;
 
-	iotdrv_lywsd03mmc_layout_unit(&d->frame, unit);
+	iotdrv_lywsd03mmc_layout_unit(&d->frame, (unit == IOTDRV_CLIMATE_UNIT_C) ? IOTDRV_LYWSD03MMC_UNIT_C
+					     : (unit == IOTDRV_CLIMATE_UNIT_F) ? IOTDRV_LYWSD03MMC_UNIT_F
+									   : IOTDRV_LYWSD03MMC_UNIT_NONE);
 }
 
-void iotdrv_lywsd03mmc_smiley(const struct device *dev, enum iotdrv_lywsd03mmc_smiley smiley)
+static void lcd_smiley(const struct device *dev, enum iotdrv_climate_smiley smiley)
 {
 	struct lcd_data *d = dev->data;
 
-	iotdrv_lywsd03mmc_layout_smiley(&d->frame, smiley);
+	iotdrv_lywsd03mmc_layout_smiley(&d->frame, (smiley == IOTDRV_CLIMATE_SMILEY_HAPPY)
+						       ? IOTDRV_LYWSD03MMC_SMILEY_HAPPY
+					       : (smiley == IOTDRV_CLIMATE_SMILEY_SAD)
+						       ? IOTDRV_LYWSD03MMC_SMILEY_SAD
+						       : IOTDRV_LYWSD03MMC_SMILEY_OFF);
 }
 
-void iotdrv_lywsd03mmc_ble(const struct device *dev, bool on)
+static void lcd_ble(const struct device *dev, bool on)
 {
 	struct lcd_data *d = dev->data;
 
 	iotdrv_lywsd03mmc_layout_ble(&d->frame, on);
 }
 
-void iotdrv_lywsd03mmc_battery(const struct device *dev, bool on)
+static void lcd_battery(const struct device *dev, int8_t percent)
 {
 	struct lcd_data *d = dev->data;
 
-	iotdrv_lywsd03mmc_layout_battery(&d->frame, on);
+	iotdrv_lywsd03mmc_layout_battery(&d->frame, percent >= 0);
 }
 
-void iotdrv_lywsd03mmc_clock(const struct device *dev, uint8_t hours, uint8_t minutes)
+static void lcd_clock(const struct device *dev, uint8_t hours, uint8_t minutes)
 {
 	struct lcd_data *d = dev->data;
 
 	iotdrv_lywsd03mmc_layout_clock(&d->frame, hours, minutes);
 }
+
+static const struct iotdrv_climate_display_api lcd_api = {
+	.big_number_x10 = lcd_big_number_x10,
+	.small_number = lcd_small_number,
+	.unit = lcd_unit,
+	.smiley = lcd_smiley,
+	.ble = lcd_ble,
+	.battery = lcd_battery,
+	.clock = lcd_clock,
+	.clear = lcd_clear,
+	.flush = lcd_flush,
+	.off = lcd_off,
+};
 
 static int lcd_init(const struct device *dev)
 {
@@ -264,7 +284,7 @@ static int lcd_init(const struct device *dev)
 		err = b19_init(cfg->i2c);
 	} else if ((cfg->uart != NULL) && device_is_ready(cfg->uart)) {
 		d->bus = BUS_UART;
-		err = iotdrv_lywsd03mmc_flush(dev);
+		err = lcd_flush(dev);
 	} else {
 		LOG_ERR("no panel found");
 		return -ENODEV;
@@ -288,6 +308,6 @@ static int lcd_init(const struct device *dev)
 		.uart = LCD_PHANDLE(inst, uart),                                                   \
 	};                                                                                         \
 	DEVICE_DT_INST_DEFINE(inst, lcd_init, NULL, &lcd_data_##inst, &lcd_config_##inst,          \
-			      POST_KERNEL, CONFIG_IOTDRV_DISPLAY_LYWSD03MMC_INIT_PRIORITY, NULL);
+			      POST_KERNEL, CONFIG_IOTDRV_DISPLAY_LYWSD03MMC_INIT_PRIORITY, &lcd_api);
 
 DT_INST_FOREACH_STATUS_OKAY(LCD_INIT)

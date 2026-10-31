@@ -4,7 +4,7 @@ menu "IoT drivers"
 
 rsource "lib/thermostat_core/Kconfig"
 rsource "lib/tuya_mcu/Kconfig"
-rsource "drivers/display/lywsd03mmc/Kconfig"
+rsource "drivers/display/*/Kconfig"
 rsource "bridge/zigbee/Kconfig"
 rsource "bridge/ble/Kconfig"
 
