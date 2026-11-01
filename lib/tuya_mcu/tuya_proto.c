@@ -78,7 +78,7 @@ int iotdrv_tuya_parser_feed(struct iotdrv_tuya_parser *p, uint8_t byte, struct i
 	}
 
 	len = ((uint16_t)p->buf[6] << 8) | p->buf[7];
-	if (len > IOTDRV_TUYA_MAX_DATA) {
+	if (len > IOTDRV_TUYA_MAX_RX_DATA) {
 		p->pos = 0U;
 		return -EBADMSG;
 	}

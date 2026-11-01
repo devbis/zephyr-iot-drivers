@@ -14,8 +14,12 @@
 #include <stdint.h>
 
 #define IOTDRV_TUYA_HEADER_LEN 8U
-#define IOTDRV_TUYA_MAX_DATA   128U
-#define IOTDRV_TUYA_FRAME_MAX  (IOTDRV_TUYA_HEADER_LEN + IOTDRV_TUYA_MAX_DATA + 1U)
+/* Largest frame data the module sends, and the largest it accepts from the MCU (a
+ * report of all datapoints of a thermostat is more than it ever sends). */
+#define IOTDRV_TUYA_MAX_DATA    128U
+#define IOTDRV_TUYA_MAX_RX_DATA 256U
+#define IOTDRV_TUYA_FRAME_MAX   (IOTDRV_TUYA_HEADER_LEN + IOTDRV_TUYA_MAX_DATA + 1U)
+#define IOTDRV_TUYA_RX_FRAME_MAX (IOTDRV_TUYA_HEADER_LEN + IOTDRV_TUYA_MAX_RX_DATA + 1U)
 
 enum iotdrv_tuya_cmd {
 	IOTDRV_TUYA_CMD_HEARTBEAT = 0x00,
@@ -52,7 +56,7 @@ int iotdrv_tuya_frame_encode(uint8_t *out, size_t out_size, const struct iotdrv_
 
 /* Streaming frame parser; feed it bytes as they arrive. */
 struct iotdrv_tuya_parser {
-	uint8_t buf[IOTDRV_TUYA_FRAME_MAX];
+	uint8_t buf[IOTDRV_TUYA_RX_FRAME_MAX];
 	uint16_t pos;
 };
 

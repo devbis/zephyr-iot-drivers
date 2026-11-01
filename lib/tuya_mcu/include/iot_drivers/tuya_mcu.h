@@ -27,6 +27,8 @@ extern "C" {
 
 struct iotdrv_tuya_mcu;
 
+#define IOTDRV_TUYA_RSP_QUEUE_LEN 3
+
 enum iotdrv_tuya_net_status {
 	IOTDRV_TUYA_NET_NOT_JOINED = 0,
 	IOTDRV_TUYA_NET_JOINED = 1,
@@ -49,6 +51,8 @@ struct iotdrv_tuya_listener {
 	void (*on_dp)(struct iotdrv_tuya_mcu *mcu, const struct iotdrv_tuya_dp *dp, void *user_data);
 	/* Nothing was heard from the MCU for CONFIG_IOTDRV_TUYA_MCU_LINK_TIMEOUT_S. */
 	void (*on_link_lost)(struct iotdrv_tuya_mcu *mcu, void *user_data);
+	/* The MCU asked the module to reset its network settings and rejoin. */
+	void (*on_reset_request)(struct iotdrv_tuya_mcu *mcu, void *user_data);
 	void *user_data;
 };
 
@@ -67,6 +71,9 @@ struct iotdrv_tuya_mcu {
 	uint8_t rx_storage[CONFIG_IOTDRV_TUYA_MCU_RX_BUF_SIZE];
 	struct k_msgq tx_q;
 	char tx_storage[CONFIG_IOTDRV_TUYA_MCU_TX_QUEUE_LEN * sizeof(struct iotdrv_tuya_tx_item)];
+	/* answers to the MCU's own requests: they never wait behind a request of ours */
+	struct k_msgq rsp_q;
+	char rsp_storage[IOTDRV_TUYA_RSP_QUEUE_LEN * sizeof(struct iotdrv_tuya_tx_item)];
 	struct iotdrv_tuya_tx_item inflight;
 	sys_slist_t listeners;
 

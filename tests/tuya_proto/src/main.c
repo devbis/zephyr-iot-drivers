@@ -65,6 +65,34 @@ ZTEST(tuya_proto, test_bad_checksum_resyncs)
 	zassert_equal(feed_all(&p, buf, sizeof(buf), &r), 1);
 }
 
+ZTEST(tuya_proto, test_receives_longer_frames_than_it_sends)
+{
+	struct iotdrv_tuya_frame r;
+	struct iotdrv_tuya_parser p;
+	uint8_t buf[8 + 300 + 1] = {0x55, 0xAA, 0x00, 0x00, 0x01, 0x05};
+	size_t n;
+	uint8_t sum;
+
+	iotdrv_tuya_parser_init(&p);
+
+	/* 200 bytes of data: more than the module sends, accepted from the MCU */
+	n = 8 + 200 + 1;
+	buf[6] = 0;
+	buf[7] = 200;
+	sum = 0;
+	for (size_t i = 0; i < n - 1; i++) {
+		sum += buf[i];
+	}
+	buf[n - 1] = sum;
+	zassert_equal(feed_all(&p, buf, n, &r), 1);
+	zassert_equal(r.len, 200);
+
+	/* more than IOTDRV_TUYA_MAX_RX_DATA is refused */
+	buf[6] = 0x01;
+	buf[7] = 0x2C; /* 300 */
+	zassert_equal(feed_all(&p, buf, 8 + 300 + 1, &r), -EBADMSG);
+}
+
 ZTEST(tuya_proto, test_dp_encode_and_iterate)
 {
 	uint8_t buf[32];

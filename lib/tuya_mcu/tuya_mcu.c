@@ -34,7 +34,8 @@ static int enqueue(struct iotdrv_tuya_mcu *mcu, uint8_t cmd, uint16_t seq, bool 
 		item.seq = mcu->seq;
 	}
 
-	err = k_msgq_put(&mcu->tx_q, &item, K_NO_WAIT);
+	/* a reply (the MCU's frame number is kept) has its own queue */
+	err = k_msgq_put(new_seq ? &mcu->tx_q : &mcu->rsp_q, &item, K_NO_WAIT);
 	if (err != 0) {
 		return -ENOMEM;
 	}
@@ -69,10 +70,13 @@ static int transmit(struct iotdrv_tuya_mcu *mcu, const struct iotdrv_tuya_tx_ite
 	return mcu->send(mcu->send_ctx, buf, (size_t)n);
 }
 
-/* A response completes a request when it carries the same command; DP sends also accept reports */
+/*
+ * A response completes a request when it carries the same command; DP sends and
+ * DP queries are answered by reports.
+ */
 static bool completes(uint8_t sent, uint8_t received)
 {
-	if (sent == IOTDRV_TUYA_CMD_SEND_DP) {
+	if ((sent == IOTDRV_TUYA_CMD_SEND_DP) || (sent == IOTDRV_TUYA_CMD_QUERY_DPS)) {
 		return (received == IOTDRV_TUYA_CMD_REPORT_DP) ||
 		       (received == IOTDRV_TUYA_CMD_REPORT_DP_ACKED);
 	}
@@ -132,8 +136,10 @@ static void handle_frame(struct iotdrv_tuya_mcu *mcu, const struct iotdrv_tuya_f
 	case IOTDRV_TUYA_CMD_PRODUCT_INFO: {
 		char product[IOTDRV_TUYA_MAX_DATA + 1U];
 
-		memcpy(product, f->data, f->len);
-		product[f->len] = '\0';
+		size_t n = MIN(f->len, IOTDRV_TUYA_MAX_DATA);
+
+		memcpy(product, f->data, n);
+		product[n] = '\0';
 		if (!mcu->ready) {
 			mcu->ready = true;
 			notify_ready(mcu, product);
@@ -144,6 +150,19 @@ static void handle_frame(struct iotdrv_tuya_mcu *mcu, const struct iotdrv_tuya_f
 		/* A request has no payload; the module handles the network itself */
 		if (f->len == 0U) {
 			(void)reply(mcu, f, IOTDRV_TUYA_CMD_WORKING_MODE, NULL, 0U);
+		}
+		break;
+	case IOTDRV_TUYA_CMD_NET_STATUS:
+		/* The MCU's own command 3: data 1 is a reset request, the answer is empty */
+		if ((f->len >= 1U) && (f->data[0] == 1U)) {
+			struct iotdrv_tuya_listener *l;
+
+			(void)reply(mcu, f, IOTDRV_TUYA_CMD_NET_STATUS, NULL, 0U);
+			SYS_SLIST_FOR_EACH_CONTAINER(&mcu->listeners, l, node) {
+				if (l->on_reset_request != NULL) {
+					l->on_reset_request(mcu, l->user_data);
+				}
+			}
 		}
 		break;
 	case IOTDRV_TUYA_CMD_NET_STATUS_QUERY:
@@ -182,6 +201,13 @@ static void drain_rx(struct iotdrv_tuya_mcu *mcu)
 static void pump_tx(struct iotdrv_tuya_mcu *mcu, int64_t now)
 {
 	struct iotdrv_tuya_tx_item item;
+
+	if (((now - mcu->last_tx_at) >= CONFIG_IOTDRV_TUYA_MCU_TX_GAP_MS) &&
+	    (k_msgq_get(&mcu->rsp_q, &item, K_NO_WAIT) == 0)) {
+		(void)transmit(mcu, &item);
+		mcu->last_tx_at = now;
+		return;
+	}
 
 	if (mcu->has_inflight) {
 		if ((now - mcu->sent_at) < CONFIG_IOTDRV_TUYA_MCU_ACK_TIMEOUT_MS) {
@@ -244,6 +270,7 @@ static void work_handler(struct k_work *work)
 	check_link(mcu, now);
 
 	schedule(mcu, (mcu->has_inflight || (k_msgq_num_used_get(&mcu->tx_q) > 0U) ||
+		       (k_msgq_num_used_get(&mcu->rsp_q) > 0U) ||
 		       (ring_buf_size_get(&mcu->rx_ring) > 0U))
 			      ? TICK_MS
 			      : IDLE_MS);
@@ -258,6 +285,8 @@ void iotdrv_tuya_mcu_init(struct iotdrv_tuya_mcu *mcu, uint8_t protocol_version)
 	ring_buf_init(&mcu->rx_ring, sizeof(mcu->rx_storage), mcu->rx_storage);
 	k_msgq_init(&mcu->tx_q, mcu->tx_storage, sizeof(struct iotdrv_tuya_tx_item),
 		    CONFIG_IOTDRV_TUYA_MCU_TX_QUEUE_LEN);
+	k_msgq_init(&mcu->rsp_q, mcu->rsp_storage, sizeof(struct iotdrv_tuya_tx_item),
+		    IOTDRV_TUYA_RSP_QUEUE_LEN);
 	sys_slist_init(&mcu->listeners);
 	k_work_init_delayable(&mcu->work, work_handler);
 }

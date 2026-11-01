@@ -7,6 +7,8 @@ bridges that expose them over Zigbee or BLE.
     lib/thermostat_core/        setpoint, hysteresis, heating demand
     lib/tuya_mcu/               Tuya MCU: tuya_proto (codec), tuya_mcu (session engine,
                                 listeners), tuya_uart (UART transport)
+    lib/tuya_thermostat/        the 13 Tuya floor-heating thermostats: datapoint maps, value and
+                                schedule codecs (host-testable)
     drivers/display/            thermometer panels behind one API (iot_drivers/climate_display.h):
       lywsd03mmc/ cgdk2/ mho_c122/ mjwsd05mmc/   segment LCDs
       cgg1/ mho_c401/                            e-paper (variant chosen in devicetree)

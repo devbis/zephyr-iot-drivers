@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config IOTDRV_TUYA_THERMOSTAT
+	bool "Tuya thermostat models"
+	depends on IOTDRV_TUYA_MCU
+	help
+	  The datapoint maps of the 13 floor-heating thermostats of
+	  tuya_thermostat_zrd and the conversions between their datapoints and
+	  the values of the Zigbee Thermostat cluster, schedules included.
