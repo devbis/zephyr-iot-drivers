@@ -15,6 +15,7 @@ bridges that expose them over Zigbee or BLE.
     drivers/sensor/             energy meters on the Zephyr sensor API (iot_drivers/energy_meter.h):
       bl0942/                                  over UART
       bl0937/                                  CF/CF1 pulse counting
+    drivers/sensor/cht8305/     CHT8305 temperature and humidity (Zephyr sensor API, I2C)
     bridge/zigbee/              libraries -> ZCL clusters
     bridge/ble/                 libraries -> GATT services
     dts/bindings/               devicetree bindings (vendor prefixes `iotdrv`, `belling`, `tuya`)

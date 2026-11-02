@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  Sensylink CHT8305 temperature and humidity sensor on I2C. The address is
+  0x40 to 0x43, selected by the ADDR pin. The driver checks the manufacturer
+  (0x5959) and device (0x8305) registers, so a node whose chip does not answer
+  leaves the device not ready.
+
+    &i2c0 {
+        cht8305@40 {
+            compatible = "sensylink,cht8305";
+            reg = <0x40>;
+        };
+    };
+
+compatible: "sensylink,cht8305"
+
+include: [sensor-device.yaml, i2c-device.yaml]

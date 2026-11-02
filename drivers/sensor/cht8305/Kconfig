@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config IOTDRV_SENSOR_CHT8305
+	bool "CHT8305 temperature and humidity sensor"
+	default y
+	depends on DT_HAS_SENSYLINK_CHT8305_ENABLED
+	select I2C
+	select SENSOR
+	help
+	  Sensylink CHT8305 (not the CHT8315, which has its own driver in Zephyr):
+	  ambient temperature and relative humidity over I2C. Enabled by a
+	  "sensylink,cht8305" node in the devicetree.
+
+if IOTDRV_SENSOR_CHT8305
+
+config IOTDRV_SENSOR_CHT8305_INIT_PRIORITY
+	int "Init priority"
+	default 90
+	help
+	  Must be later than the I2C driver the sensor sits on.
+
+endif # IOTDRV_SENSOR_CHT8305
