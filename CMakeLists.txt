@@ -11,6 +11,7 @@ zephyr_include_directories(
 add_subdirectory_ifdef(CONFIG_IOTDRV_THERMOSTAT_CORE lib/thermostat_core)
 add_subdirectory_ifdef(CONFIG_IOTDRV_TUYA_MCU lib/tuya_mcu)
 add_subdirectory_ifdef(CONFIG_IOTDRV_TUYA_THERMOSTAT lib/tuya_thermostat)
+add_subdirectory_ifdef(CONFIG_IOTDRV_SOFT_UART_CONSOLE lib/soft_uart_console)
 
 # Each panel driver is enabled by its devicetree node: see its Kconfig
 file(GLOB iotdrv_display_dirs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/drivers/display

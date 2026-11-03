@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config IOTDRV_SOFT_UART_CONSOLE
+	bool "Transmit printk output over a GPIO software UART"
+	depends on GPIO && PRINTK
+	depends on DT_HAS_IOTDRV_SOFT_UART_CONSOLE_ENABLED
+	default y
+	help
+	  Route printk and stdout output through a transmit-only, bit-banged UART
+	  on the GPIO from the iotdrv,soft-uart-console devicetree node. The TX
+	  frame is 8-N-1 and uses the node's current-speed property.
