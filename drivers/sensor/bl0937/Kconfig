@@ -22,4 +22,16 @@ config IOTDRV_SENSOR_BL0937_WINDOW_MS
 	  voltage every second window, so each of them is refreshed every four
 	  windows. Longer windows give better resolution at low power.
 
+config IOTDRV_SENSOR_BL0937_TIMER_COUNT
+	bool "Count the pulses with the SoC timers"
+	default y
+	depends on SOC_SERIES_TLSR825X
+	help
+	  Counting every CF and CF1 edge in a GPIO interrupt loses most of them above a few
+	  hundred pulses per second (the pending bit of the interrupt is one for all the edges
+	  that arrive before it is served), and CF1 gives 1.8 kHz at 230 V. The TLSR8258 timers
+	  have a GPIO trigger mode that counts the edges of a pin in hardware: Timer0 counts CF
+	  and Timer2 counts CF1 here (Timer1 belongs to the SoC's sleep code). The window then
+	  reads the two ticks. Without it the pulses are counted in GPIO interrupts.
+
 endif # IOTDRV_SENSOR_BL0937

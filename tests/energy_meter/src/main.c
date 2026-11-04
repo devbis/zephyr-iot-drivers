@@ -247,3 +247,60 @@ ZTEST(bl0937, test_from_components_and_init_validation)
 }
 
 ZTEST_SUITE(bl0937, NULL, NULL, NULL, NULL, NULL);
+
+/*
+ * The scales of the stock firmware of the Zbeacon TS011F (its record at 0x74208 of the flash:
+ * 5 V at 39.136364 Hz, 200 mA at 16.161616 Hz, 36 W at 23.532110 Hz), as the devicetree gives
+ * them: milli-units per millihertz.
+ */
+static struct bl0937_calib stock_calib(void)
+{
+	return (struct bl0937_calib){
+		.power_mw = {436, 285},
+		.current_ma = {99, 8000},
+		.voltage_mv = {110, 861},
+		.cf_pulses_per_kwh = 3200,
+	};
+}
+
+ZTEST(bl0937, test_stock_scales_mains_voltage)
+{
+	struct bl0937_calib c = stock_calib();
+	struct bl0937 d;
+	struct bl0937_result r;
+	/* 230 V is about 1.8 kHz on CF1 */
+	struct bl0937_window w = {.cf_pulses = 0, .cf1_pulses = 1800, .duration_us = 1000000};
+
+	zassert_equal(bl0937_init(&d, &c, BL0937_MODE_VOLTAGE, true, 2), 0);
+	zassert_equal(bl0937_process_window(&d, &w, &r), 0);   /* the first window is dropped */
+	zassert_equal(bl0937_process_window(&d, &w, &r), 0);
+
+	zassert_true(r.have_voltage);
+	zassert_within(r.voltage_mv, 229965, 20, "%llu mV", r.voltage_mv);
+}
+
+ZTEST(bl0937, test_stock_scales_current_and_power)
+{
+	struct bl0937_calib c = stock_calib();
+	struct bl0937 d;
+	struct bl0937_result r;
+	/* 1 A is about 81 Hz on CF1, 1 kW about 654 Hz on CF */
+	struct bl0937_window w = {.cf_pulses = 654, .cf1_pulses = 81, .duration_us = 1000000};
+
+	zassert_equal(bl0937_init(&d, &c, BL0937_MODE_CURRENT, true, 2), 0);
+	zassert_equal(bl0937_process_window(&d, &w, &r), 0);
+	zassert_equal(bl0937_process_window(&d, &w, &r), 0);
+
+	zassert_true(r.have_current);
+	zassert_within(r.current_ma, 1002, 5, "%llu mA", r.current_ma);
+	zassert_within(r.power_mw, 1000500, 1500, "%llu mW", r.power_mw);
+}
+
+/* The datasheet scales for the same board would read the mains 46 % high: the reason to carry the stock ones */
+ZTEST(bl0937, test_datasheet_scales_differ_from_stock)
+{
+	struct bl0937_calib c;
+
+	zassert_equal(bl0937_calib_from_components(&c, 1000, 2351000, 3200), 0);
+	zassert_true((uint64_t)c.voltage_mv.num * 861 > (uint64_t)110 * c.voltage_mv.den * 14 / 10);
+}

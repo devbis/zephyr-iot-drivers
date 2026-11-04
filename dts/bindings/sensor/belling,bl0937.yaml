@@ -62,3 +62,25 @@ properties:
     type: int
     default: 0
     description: Current at or below this is reported as zero.
+
+  voltage-mv-per-mhz:
+    type: array
+    description: |
+      Voltage scale measured on the product: <numerator denominator> of the millivolts per
+      millihertz of CF1 in the voltage mode. When it is given, voltage-divider-milli is not
+      used for the voltage. Stock firmware of the Zbeacon TS011F: <110 861>
+      (5 V at 39.136364 Hz, that is 0.1278 V/Hz: 230 V at 1.8 kHz).
+
+  current-ma-per-mhz:
+    type: array
+    description: |
+      Current scale measured on the product: <numerator denominator> of the milliamperes per
+      millihertz of CF1 in the current mode. When it is given, shunt-micro-ohms is not used for
+      the current. Zbeacon TS011F: <99 8000> (200 mA at 16.161616 Hz, 12.375 mA/Hz).
+
+  power-mw-per-mhz:
+    type: array
+    description: |
+      Power scale measured on the product: <numerator denominator> of the milliwatts per
+      millihertz of CF. When it is given, neither shunt-micro-ohms nor voltage-divider-milli is
+      used for the power. Zbeacon TS011F: <436 285> (36 W at 23.532110 Hz, 1.5298 W/Hz).
